@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İyi Ki Doğdun Ecrin!</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --pink: #ff4d94; --light-pink: #ffe6f2; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light-pink); margin: 0; overflow-x: hidden; }
+        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .active { display: flex; }
+        .card { background: white; padding: 2.5rem; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 320px; }
+        input { width: 90%; padding: 12px; margin: 15px 0; border: 2px solid var(--pink); border-radius: 12px; font-size: 1rem; }
+        button { background: var(--pink); color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { transform: scale(1.05); background: #ff1a75; }
+        
+        /* Ana Menü Tasarımı */
+        #main-site { display: none; }
+        nav { background: white; padding: 15px; position: sticky; top: 0; display: flex; justify-content: space-around; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        nav a { text-decoration: none; color: var(--pink); font-weight: bold; cursor: pointer; padding: 5px 15px; border-radius: 20px; }
+        nav a:hover { background: var(--light-pink); }
+        .content-section { display: none; padding: 40px 20px; max-width: 800px; margin: auto; text-align: center; }
+        .active-tab { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .gallery img { width: 100%; border-radius: 15px; transition: 0.3s; }
+        .gallery img:hover { transform: translateY(-5px); }
+        #music-player { position: fixed; bottom: -500px; } /* Müzik gizli */
+    </style>
+</head>
+<body>
+
+<div id="login-screen" class="screen active">
+    <div class="card">
+        <h2 style="color: var(--pink);">Sana Bir Mesaj Var! 💌</h2>
+        <p>Giriş Şifresi: <b>ecrin</b></p>
+        <input type="password" id="passInput" placeholder="Şifreyi buraya yaz...">
+        <button onclick="checkPass()">İleri</button>
+    </div>
+</div>
+
+<div id="name-screen" class="screen">
+    <div class="card">
+        <h2 style="color: var(--pink);">Neredeyse Geldik!</h2>
+        <p>Lütfen ismini yazar mısın?</p>
+        <input type="text" id="userName" placeholder="Adın nedir?">
+        <button onclick="startCelebration()">Hadi Başlayalım! 🎉</button>
+    </div>
+</div>
+
+<div id="main-site">
+    <nav>
+        <a onclick="showTab('home')">🏠 Ana Sayfa</a>
+        <a onclick="showTab('gallery')">📸 Galeri</a>
+        <a onclick="showTab('message')">💖 Mesajım</a>
+    </nav>
+
+    <div id="home" class="content-section active-tab">
+        <h1 id="celebration-title" style="color: var(--pink); font-size: 2.5rem;"></h1>
+        <p style="font-size: 1.2rem;">Bugün 21.02.2026, takvimlerdeki en parlak gün! ✨</p>
+        <div style="font-size: 100px;">🎂</div>
+    </div>
+
+    <div id="gallery" class="content-section">
+        <h2 style="color: var(--pink);">En Güzel Anılar</h2>
+        <div class="gallery">
+            <img src="https://via.placeholder.com/300x300/ff4d94/ffffff?text=Resim+1" alt="Ecrin 1">
+            <img src="https://via.placeholder.com/300x300/ff4d94/ffffff?text=Resim+2" alt="Ecrin 2">
+            <img src="https://via.placeholder.com/300x300/ff4d94/ffffff?text=Resim+3" alt="Ecrin 3">
+        </div>
+    </div>
+
+    <div id="message" class="content-section">
+        <h2 style="color: var(--pink);">Sana Özel Mesajım</h2>
+        <div style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <p style="line-height: 1.6; font-size: 1.1rem;">
+                "Canım Ecrin, yeni yaşın sana tüm güzellikleri getirsin. Bu küçük site, senin ne kadar özel olduğunu hatırlatmak için hazırlandı. Seni çok seviyoruz, iyi ki doğdun!"
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="music-player">
+    <iframe id="youtube-frame" width="100" height="100" 
+        src="https://www.youtube.com/embed/IMtq785QSB8?enablejsapi=1" 
+        frameborder="0" allow="autoplay">
+    </iframe>
+</div>
+
+<script>
+    function checkPass() {
+        const pass = document.getElementById('passInput').value.toLowerCase();
+        if(pass === 'ecrin') {
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('name-screen').classList.add('active');
+        } else {
+            alert('Şifre yanlış, lütfen "ecrin" yazmayı dene!');
+        }
+    }
+
+    function startCelebration() {
+        const name = document.getElementById('userName').value;
+        const title = document.getElementById('celebration-title');
+        title.innerText = "Doğum Günün Kutlu Olsun Ecrin!";
+        
+        // Müziği Başlat
+        const iframe = document.getElementById('youtube-frame');
+        iframe.src += "&autoplay=1";
+
+        // Yoğun Konfeti Efekti
+        var duration = 15 * 1000; // 15 saniye sürsün
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        var interval = setInterval(function() {
+          var timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) { return clearInterval(interval); }
+          var particleCount = 50 * (timeLeft / duration);
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+
+        // Alert göster ve ana siteye geç
+        alert("Sürpriz Hazır! ✨");
+        
+        setTimeout(() => {
+            document.getElementById('name-screen').classList.remove('active');
+            document.getElementById('main-site').style.display = 'block';
+        }, 1500);
+    }
+
+    function showTab(tabId) {
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(s => s.classList.remove('active-tab'));
+        document.getElementById(tabId).classList.add('active-tab');
+    }
+</script>
+
+</body>
+</html>
