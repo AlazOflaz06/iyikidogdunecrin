@@ -2,141 +2,152 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>İyi Ki Doğdun Ecrin!</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --pink: #ff4d94; --bg: #fff0f5; }
+        :root { --pink: #ff4d94; --soft-pink: #fff0f5; --gold: #ffd700; }
         
-        /* HER ŞEYİ ORTALAMA */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: var(--bg); font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column; align-items: center;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; padding: 0; background: var(--soft-pink); 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden; color: #333;
         }
 
+        /* Arka Plan Kalp Efekti */
+        .hearts { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+
+        /* Ekranlar */
         .screen { 
-            display: none; width: 100%; min-height: 100vh; 
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            display: none; min-height: 100vh; width: 100%;
+            padding: 20px; flex-direction: column; align-items: center; justify-content: center; text-align: center;
         }
-        .active { display: flex; }
+        .active { display: flex; animation: fadeIn 0.5s ease; }
 
-        /* KART TASARIMI */
+        /* Kart Tasarımları */
         .card { 
-            background: white; padding: 30px; border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 400px;
+            background: white; padding: 25px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(255, 77, 148, 0.15); width: 100%; max-width: 350px;
+            border: 1px solid rgba(255, 77, 148, 0.2);
         }
 
         input { 
-            width: 80%; padding: 12px; margin: 15px 0; border: 2px solid var(--pink); 
-            border-radius: 12px; font-size: 1rem; text-align: center; outline: none;
+            width: 100%; padding: 12px; margin: 15px 0; border: 2px solid var(--pink); 
+            border-radius: 12px; font-size: 16px; text-align: center; outline: none;
         }
 
         button { 
-            background: var(--pink); color: white; border: none; padding: 12px 25px; 
-            border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s;
+            width: 100%; background: var(--pink); color: white; border: none; padding: 14px; 
+            border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;
         }
-        button:hover { transform: scale(1.05); background: #ff1a75; }
 
-        /* ANA SİTE DÜZENİ */
+        /* Navigasyon (Mobil Uyumu) */
         nav { 
-            width: 100%; background: white; padding: 15px 0; 
-            display: flex; justify-content: center; gap: 20px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white; 
+            display: flex; justify-content: space-around; padding: 12px 0;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.1); z-index: 1000; border-radius: 20px 20px 0 0;
         }
-        nav a { text-decoration: none; color: var(--pink); font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        nav a { text-decoration: none; color: #888; font-size: 12px; font-weight: bold; text-align: center; }
+        nav a.active-nav { color: var(--pink); }
 
-        .content-section { 
-            display: none; padding: 30px; max-width: 600px; width: 100%; 
-            box-sizing: border-box; text-align: center;
-        }
-        .active-tab { display: block; }
+        /* İçerik Alanları */
+        .content-section { display: none; padding: 20px 20px 80px 20px; width: 100%; max-width: 500px; margin: 0 auto; }
+        .active-tab { display: block; animation: slideUp 0.4s ease; }
 
-        /* MEKTUP VE GALERİ */
+        /* Mektup ve Dostluk Sayacı */
         .message-box { 
-            background: white; padding: 30px; border-radius: 20px; 
-            line-height: 1.8; text-align: left; border-left: 8px solid var(--pink);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: white; padding: 20px; border-radius: 15px; text-align: left;
+            line-height: 1.6; border-left: 5px solid var(--pink); font-size: 15px;
         }
+        .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .counter-item { background: var(--pink); color: white; padding: 10px; border-radius: 10px; font-size: 12px; }
 
-        .gallery { 
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;
-        }
-        .gallery img { 
-            width: 100%; height: 200px; object-fit: cover; border-radius: 15px; 
-            background: #eee; /* Resim yüklenmezse gri kutu görünür */
-        }
+        /* Galeri */
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .gallery img { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; background: #ddd; }
 
-        footer { padding: 20px; color: #888; font-size: 0.8rem; text-align: center; margin-top: auto; }
-        #music-container { position: fixed; left: -9999px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        #music-box { position: fixed; top: -100px; }
+        footer { margin-top: 20px; font-size: 11px; color: #aaa; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
+<div class="hearts" id="hearts-container"></div>
+
 <div id="login-screen" class="screen active">
     <div class="card">
-        <h2 style="color: var(--pink);">Ecrin Şahin İçin... 🔒</h2>
-        <p>Giriş Şifresi: <b>ecrin</b></p>
-        <input type="password" id="passInput" placeholder="Şifreyi yaz...">
-        <button onclick="checkPass()">İleri</button>
+        <h2 style="color: var(--pink); margin-top: 0;">Ecrin Şahin İçin ❤️</h2>
+        <p style="font-size: 14px;">Bu kapı sadece sana özel...</p>
+        <p>Şifre: <b style="color: var(--pink)">ecrin</b></p>
+        <input type="password" id="passInput" placeholder="Şifreyi gir...">
+        <button onclick="checkPass()">Hadi Gir Bakalım ✨</button>
     </div>
 </div>
 
 <div id="name-screen" class="screen">
     <div class="card">
-        <h2 style="color: var(--pink);">Son Adım ✨</h2>
-        <p>İsmini yazar mısın?</p>
-        <input type="text" id="userName" placeholder="Adın nedir?">
-        <button onclick="start()">Kutlamayı Başlat! 🎉</button>
+        <h2 style="color: var(--pink);">Hoş Geldin! ✨</h2>
+        <p>Hazırsan butona bas ve müziğin sesini aç!</p>
+        <button onclick="startApp()">Kutlamayı Başlat! 🎈</button>
     </div>
 </div>
 
-<div id="main-site" style="display:none; width: 100%;">
-    <nav>
-        <a onclick="showTab('home')">ANA SAYFA</a>
-        <a onclick="showTab('message')">MEKTUBUM</a>
-        <a onclick="showTab('gallery')">GALERİ</a>
+<div id="main-app" style="display:none;">
+    <nav id="bottom-nav">
+        <a onclick="showTab('home', this)" class="active-nav">🏠<br>Anasayfa</a>
+        <a onclick="showTab('message', this)">💌<br>Mektup</a>
+        <a onclick="showTab('gallery', this)">📸<br>Galeri</a>
     </nav>
 
     <div id="home" class="content-section active-tab">
-        <h1 style="color: var(--pink);">İyi Ki Doğdun Ecrin!</h1>
-        <p>Bugün senin günün: <b>21.02.2026</b></p>
-        <div style="font-size: 80px;">🎂</div>
+        <h2 style="color: var(--pink);">İyi Ki Doğdun Ecrin!</h2>
+        <p>Bugün Takvimler: <b>21.02.2026</b></p>
+        
+        <div class="card" style="max-width: none; margin-bottom: 20px;">
+            <p style="margin: 0; font-weight: bold; color: var(--pink);">Dostluk Sayacımız ✨</p>
+            <div class="counter-grid">
+                <div class="counter-item"><b id="daysCount">365</b><br>Gün</div>
+                <div class="counter-item"><b>8.760</b><br>Saat</div>
+            </div>
+            <p style="font-size: 12px; color: #888; margin: 0;">Seninle geçen her an çok değerli.</p>
+        </div>
+        
+        <div style="font-size: 60px;">🎁</div>
+        <p style="font-size: 14px; font-style: italic;">"Hayatımdaki en iyi 'iyi ki' sensin."</p>
     </div>
 
     <div id="message" class="content-section">
         <div class="message-box">
-            <p>Bugün 21.02.2026 yani <b>senin doğum günün!</b> İyi ki doğdun canım kardeşim.</p>
-            <p>Tanışalı daha sadece 1 sene oldu fakat benim için asla sadece 1 sene değil... Sen bu kısa süre içinde hayatıma öyle bir girdin ki, <b>10 senelik arkadaşlarımdan bile daha çok yanımda oldun.</b></p>
-            <p>Seni çok ama çok seviyorum. Bu doğum günün böyle geçti maalesef ama bir sonraki doğum gününde belki <b>ben gelirim</b>, bilemezsin! :)</p>
-            <p>Seni çok seviyorum candostum. İyi ki varsın, iyi ki doğdun. Nice mutlu senelere!</p>
-            <p style="text-align: right; color: var(--pink); font-weight: bold;">— Alaz</p>
+            <h3 style="color: var(--pink); margin-top: 0;">Canım Kardeşime...</h3>
+            Bugün senin günün! Tanışalı 1 sene oldu ama sen benim için <b>10 senelik dostlarımdan daha yakın</b> oldun. <br><br>
+            Her anımda yanımda olduğun için, dert ortağım olduğun için teşekkür ederim. Bu yıl yanında değilim ama seneye belki sürpriz yapıp yanına gelirim, kim bilir? :) <br><br>
+            Seni çok seviyorum can dostum. Nice mutlu senelere! 🌸
+            <p style="text-align: right; font-weight: bold; color: var(--pink); font-size: 1.2rem;">— Alaz</p>
         </div>
     </div>
 
     <div id="gallery" class="content-section">
-        <h2 style="color: var(--pink);">Anılarımız</h2>
+        <h3 style="color: var(--pink);">Anılarımız</h3>
         <div class="gallery">
-            <img src="foto1.jpeg" alt="Foto 1">
-            <img src="foto2.jpeg" alt="Foto 2">
-            <img src="foto3.jpeg" alt="Foto 3">
-            <img src="foto4.jpeg" alt="Foto 4">
+            <img src="foto1.jpeg" alt="Ecrin 1" onerror="this.src='https://via.placeholder.com/200?text=Foto+1'">
+            <img src="foto2.jpeg" alt="Ecrin 2" onerror="this.src='https://via.placeholder.com/200?text=Foto+2'">
+            <img src="foto3.jpeg" alt="Ecrin 3" onerror="this.src='https://via.placeholder.com/200?text=Foto+3'">
+            <img src="foto4.jpeg" alt="Ecrin 4" onerror="this.src='https://via.placeholder.com/200?text=Foto+4'">
         </div>
+        <footer>
+            <b>Alaz Oflaz</b> Tarafından <br> <b>Ecrin Şahin</b> İçin Tasarlandı ❤️
+        </footer>
     </div>
-
-    <footer>
-        <b>Alaz Oflaz</b> Tarafından Tasarlandı | <b>Ecrin Şahin</b> İçin
-    </footer>
 </div>
 
-<div id="music-container"></div>
+<div id="music-box"></div>
 
 <script>
-    function showTab(id) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active-tab'));
-        document.getElementById(id).classList.add('active-tab');
-    }
-
     function checkPass() {
         if(document.getElementById('passInput').value.toLowerCase() === 'ecrin') {
             document.getElementById('login-screen').classList.remove('active');
@@ -144,24 +155,50 @@
         } else { alert("Şifre 'ecrin' kanka!"); }
     }
 
-    function start() {
-        // Müzik reklamını atlatmaya çalışarak başlat
-        document.getElementById('music-container').innerHTML = `
+    function startApp() {
+        // Müzik - Reklamı azaltmak için etkileşim sonrası başlatma
+        document.getElementById('music-box').innerHTML = `
             <iframe width="100" height="100" 
-            src="https://www.youtube.com/embed/IMtq785QSB8?autoplay=1&controls=0&start=1" 
+            src="https://www.youtube.com/embed/IMtq785QSB8?autoplay=1&controls=0" 
             frameborder="0" allow="autoplay"></iframe>`;
 
-        // Konfeti Yağmuru
-        var end = Date.now() + (10 * 1000);
-        (function frame() {
-            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff4d94', '#ffd700'] });
-            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff4d94', '#ffd700'] });
-            if (Date.now() < end) { requestAnimationFrame(frame); }
-        }());
+        // Konfeti
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff4d94', '#ffd700'] });
 
-        alert("Doğum Günün Kutlu Olsun Ecrin Şahin!");
         document.getElementById('name-screen').classList.remove('active');
-        document.getElementById('main-site').style.display = 'block';
+        document.getElementById('main-app').style.display = 'block';
+        createHearts();
+    }
+
+    function showTab(tabId, el) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active-tab'));
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active-nav'));
+        document.getElementById(tabId).classList.add('active-tab');
+        el.classList.add('active-nav');
+        window.scrollTo(0,0);
+    }
+
+    // Yüzen Kalpler Fonksiyonu
+    function createHearts() {
+        const container = document.getElementById('hearts-container');
+        setInterval(() => {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.style.position = 'fixed';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.bottom = '-20px';
+            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+            heart.style.opacity = Math.random();
+            heart.style.transition = 'transform 5s linear, opacity 5s';
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
+                heart.style.opacity = '0';
+            }, 100);
+
+            setTimeout(() => heart.remove(), 6000);
+        }, 500);
     }
 </script>
 </body>
